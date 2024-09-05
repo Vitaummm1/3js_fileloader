@@ -41,19 +41,11 @@ function init() {
     directionalLight.position.set(10, 10, 10);
     scene.add(directionalLight);
 
-    // Carregar materiais (.mtl)
-    const mtlLoader = new MTLLoader();
-    mtlLoader.load('materials/Julia_Sculpt.mtl', (materials) => {
-        materials.preload();
+    // Carrega obj e material
+    // loadObjFile(scene, "Julia_Sculpt");
 
-        // Carregar objeto (.obj) com o material carregado
-        const objLoader = new OBJLoader();
-        objLoader.setMaterials(materials);
-        objLoader.load('models/Julia_Sculpt.obj', (object) => {
-            object.position.set(0, 0, 0);
-            scene.add(object);
-        });
-    });
+    // Carrega FBX
+    loadFBXFile(scene, "Julia_Sculpt")
     
     // Criação do elemento CUBO
     const cube = createCube();
@@ -70,13 +62,48 @@ function init() {
         renderer.render( scene, camera );
         // cube.rotation.x += 0.01;
         // cube.rotation.y += 0.01;
-        console.log(camera.position)
+        // console.log(camera.position)
         controls.update();
     }
 
     // Executa este loop de animação
     renderer.setAnimationLoop( animate );
 }
+
+function loadObjFile(scene, object_name) {
+    // Carregar materiais (.mtl)
+    const mtlLoader = new MTLLoader();
+    mtlLoader.load(`materials/${object_name}.mtl`, (materials) => {
+        materials.preload();
+
+        // Carregar objeto (.obj) com o material carregado
+        const objLoader = new OBJLoader();
+        objLoader.setMaterials(materials);
+        objLoader.load(`models/${object_name}.obj`, (object) => {
+            object.position.set(0, 0, 0);
+            scene.add(object);
+        });
+    });
+}
+
+function loadFBXFile(scene, object_name) {
+    const fbxLoader = new FBXLoader;
+        fbxLoader.load(
+          `models/${object_name}.fbx`,
+          function (object) {
+            let fbxModel = object;
+            fbxModel.scale.set(0.01, 0.01, 0.01); // Ajuste o tamanho se necessário
+            scene.add(fbxModel);
+          },
+          function (xhr) {
+            console.log((xhr.loaded / xhr.total) * 100 + '% carregado');
+          },
+          function (error) {
+            console.error('Ocorreu um erro ao carregar o modelo:', error);
+          }
+        );
+}
+
 function createLine() {
     const line_material = new THREE.LineBasicMaterial({ color: 0x0000ff });
     const points = [];
