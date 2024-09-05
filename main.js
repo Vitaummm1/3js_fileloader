@@ -16,8 +16,7 @@ if (WebGL.isWebGL2Available()) { // Caso o navegador suporte WEBGL (Maioria dos 
 function init() {
     // Inicializando a câmera
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0.54, 1.37, 1.74);
-    camera.lookAt(0, 0, 0);
+    camera.position.set(0.7, 1.37, 2.5);
 
     // Inicializando o renderizador
     const renderer = new THREE.WebGLRenderer();
@@ -32,6 +31,10 @@ function init() {
     // Inicializando a cena
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xaaaaaa);
+    
+    // Adicionado grid
+    const gridHelper = new THREE.GridHelper(100, 100); // Tamanho 100x100
+    scene.add(gridHelper);
 
     // Inicializando luzes
     const ambientLight = new THREE.AmbientLight(0x404040, 2); // luz ambiente
@@ -62,7 +65,6 @@ function init() {
         renderer.render( scene, camera );
         // cube.rotation.x += 0.01;
         // cube.rotation.y += 0.01;
-        // console.log(camera.position)
         controls.update();
     }
 
@@ -94,12 +96,19 @@ function loadFBXFile(scene, object_name) {
             let fbxModel = object;
             fbxModel.scale.set(0.01, 0.01, 0.01); // Ajuste o tamanho se necessário
             scene.add(fbxModel);
+
+            // Remove o texto de carregamento quando o modelo for carregado
+            document.getElementById('loading-text').style.display = 'none';
           },
           function (xhr) {
-            console.log((xhr.loaded / xhr.total) * 100 + '% carregado');
+            let percentComplete = (xhr.loaded / xhr.total) * 100;
+            document.getElementById('loading-text').innerText =
+              'Carregando... ' + Math.round(percentComplete) + '%';
           },
           function (error) {
             console.error('Ocorreu um erro ao carregar o modelo:', error);
+            document.getElementById('loading-text').innerText =
+            'Erro ao carregar o modelo';
           }
         );
 }

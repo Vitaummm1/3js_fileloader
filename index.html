@@ -5,20 +5,22 @@
 		<title>My first three.js app</title>
 		<style>
 			body { margin: 0; }
+			#loading-text {
+				position: absolute;
+				top: 20px;
+				left: 20px;
+				color: white;
+				font-size: 20px;
+				background-color: rgba(0, 0, 0, 0.5);
+				padding: 10px;
+				border-radius: 5px;
+			}
 		</style>
 	</head>
 	<body>
+		<div id="loading-text">Carregando... 0%</div>
+
+		
 		<script type="module" src="/main.js"></script>
 	</body>
 </html>
-
-<style>
-	#info {
-		position: absolute;
-		top: 10px;
-		width: 100%;
-		text-align: center;
-		z-index: 100;
-		display:block;
-	}
-</style>
