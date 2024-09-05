@@ -31,6 +31,9 @@ function init() {
     // Inicializando a cena
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xaaaaaa);
+
+    // Inicializa os event listeners
+    initializeEvents(scene)
     
     // Adicionado grid
     const gridHelper = new THREE.GridHelper(100, 100); // Tamanho 100x100
@@ -48,7 +51,7 @@ function init() {
     // loadObjFile(scene, "Julia_Sculpt");
 
     // Carrega FBX
-    loadFBXFile(scene, "Julia_Sculpt")
+    loadFBXFile(scene, 'models/Julia_Sculpt.fbx');
     
     // Criação do elemento CUBO
     const cube = createCube();
@@ -69,7 +72,7 @@ function init() {
     }
 
     // Executa este loop de animação
-    renderer.setAnimationLoop( animate );
+    renderer.setAnimationLoop(animate);
 }
 
 function loadObjFile(scene, object_name) {
@@ -88,26 +91,33 @@ function loadObjFile(scene, object_name) {
     });
 }
 
-function loadFBXFile(scene, object_name) {
+function loadFBXFile(scene, file, ignorePercentageCalc = false) {
+    let loadingInfo = document.getElementById('loading-text')
+    loadingInfo.innerText = 'Carregando... 0%';
+    loadingInfo.style.display = 'block';
+
     const fbxLoader = new FBXLoader;
         fbxLoader.load(
-          `models/${object_name}.fbx`,
+          file,
           function (object) {
             let fbxModel = object;
             fbxModel.scale.set(0.01, 0.01, 0.01); // Ajuste o tamanho se necessário
             scene.add(fbxModel);
 
             // Remove o texto de carregamento quando o modelo for carregado
-            document.getElementById('loading-text').style.display = 'none';
+            loadingInfo.style.display = 'none';
           },
           function (xhr) {
-            let percentComplete = (xhr.loaded / xhr.total) * 100;
-            document.getElementById('loading-text').innerText =
-              'Carregando... ' + Math.round(percentComplete) + '%';
+            // console.log(xhr)
+            if (!ignorePercentageCalc) {
+                let percentComplete = (xhr.loaded / (xhr.total > xhr.loaded ? xhr.total : xhr.loaded)) * 100;
+                loadingInfo.innerText = 
+                  'Carregando... ' + Math.round(percentComplete) + '%';
+            }
           },
           function (error) {
             console.error('Ocorreu um erro ao carregar o modelo:', error);
-            document.getElementById('loading-text').innerText =
+            loadingInfo.innerText =
             'Erro ao carregar o modelo';
           }
         );
@@ -127,5 +137,56 @@ function createCube() {
     const cube_geometry = new THREE.BoxGeometry(1, 1, 1);
     const cube_material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     return new THREE.Mesh(cube_geometry, cube_material);
+}
+
+function initializeEvents(scene) {
+    const dropArea = document.getElementById('drop-area');
+    let loadingInfo = document.getElementById('loading-text')
+    let dragCounter = 0 // Contador criado para evitar bug entre dragover/dragleave e conflito com outros childs (canvas)
+
+    window.addEventListener('dragenter', (event) => {
+        event.preventDefault();
+        dragCounter++;
+        if (dragCounter === 1) {
+          dropArea.style.display = 'flex';
+        }
+    });
+
+      window.addEventListener('dragleave', (event) => {
+        event.preventDefault();
+        dragCounter--;
+        if (dragCounter === 0) {
+          dropArea.style.display = 'none';
+        }
+    });
+
+      window.addEventListener('dragover', (event) => {
+        event.preventDefault();
+    });
+
+    window.addEventListener('drop', (event) => {
+        event.preventDefault();
+        dropArea.style.display = 'none';
+        dragCounter = 0;
+
+        const file = event.dataTransfer.files[0];
+
+        if (file && file.name.endsWith('.fbx')) {
+            const reader = new FileReader();
+            reader.addEventListener('load', (event) => {
+                loadFBXFile(scene, event.target.result)
+            });
+
+            // reader.addEventListener('progress', (event) => {
+            //     if (event.lengthComputable) {
+            //       const percentComplete = (event.loaded / event.total) * 100;
+            //       loadingInfo.innerText = 'Carregando... ' + Math.round(percentComplete) + '%';
+            //     }
+            //   });
+            reader.readAsDataURL(file); // Lê o arquivo como URL
+        } else {
+            alert('Por favor, solte um arquivo .fbx');
+        }
+        });
 }
 
