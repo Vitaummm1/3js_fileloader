@@ -52,7 +52,7 @@ function init() {
 	// loadObjFile(scene, "Julia_Sculpt");
 
 	// Carrega FBX
-	// loadGLBFile(scene, 'models/Julia_Sculpt.glb');
+	loadFBXFile(scene, 'models/Julia_Sculpt.glb');
 
 	// Criação do elemento CUBO
 	const cube = createCube();
