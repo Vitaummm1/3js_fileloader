@@ -52,7 +52,7 @@ function init() {
 	// loadObjFile(scene, "Julia_Sculpt");
 
 	// Carrega FBX
-	loadFBXFile(scene, './public/assets/models/Julia_Sculpt.fbx');
+	loadFBXFile(scene, './assets/models/Julia_Sculpt.fbx');
 
 	// Criação do elemento CUBO
 	const cube = createCube();
@@ -83,13 +83,13 @@ function loadObjFile(scene, object_name) {
 
 	// Carregar materiais (.mtl)
 	const mtlLoader = new MTLLoader();
-	mtlLoader.load(`./public/assets/materials/${object_name}.mtl`, (materials) => {
+	mtlLoader.load(`./assets/materials/${object_name}.mtl`, (materials) => {
 		materials.preload();
 
 		// Carregar objeto (.obj) com o material carregado
 		const objLoader = new OBJLoader();
 		objLoader.setMaterials(materials);
-		objLoader.load(`./public/assets/models/${object_name}.obj`, (object) => {
+		objLoader.load(`./assets/models/${object_name}.obj`, (object) => {
 			object.position.set(0, 0, 0);
 			scene.add(object);
 			loadingInfo.style.display = 'none';
